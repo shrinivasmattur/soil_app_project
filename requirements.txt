@@ -5,4 +5,4 @@ matplotlib
 scikit-learn
 opencv-python-headless
 folium
-
+streamlit-folium
