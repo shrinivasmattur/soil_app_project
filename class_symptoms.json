@@ -1,0 +1,15 @@
+{
+    "Ramphala_Anthracnose": "Dark irregular brown spots; leaf margins dry and curl",
+    "Ramphala_Phoma_Leaf_Spot": "Circular dark lesions with pale centers; premature leaf fall",
+    "Ramphala_Alternaria_Leaf_Blight": "Brown concentric spots merging into blighted areas",
+    "Ramphala_Powdery_Mildew": "White powder on young leaves; leaf curling",
+    "Lakshmanphala_Anthracnose": "Circular brown or water-soaked spots; leaf tip blight",
+    "Lakshmanphala_Alternaria_Leaf_Blight": "Brown concentric rings; yellowing and defoliation",
+    "Lakshmanphala_Powdery_Mildew": "White coating on leaf surface; distortion of new growth",
+    "Lakshmanphala_Cercospora_Leaf_Blight": "Tiny gray-brown circular spots, later merging into blotches",
+    "wood_apple_Alternaria_Leaf_Spot": "Small brown spots with yellow halo, enlarging to blight\n",
+    "wood_apple_Anthracnose": "Circular black sunken spots; leaf blight and twig dieback",
+    "wood_apple_Cercospora_Leaf_Blight": "Minute gray spots with dark margins, coalescing to patches",
+    "wood_apple_Powdery_Mildew": "White powdery film on leaves and young shoots",
+    "wood_apple_Sooty_Mold": "Black soot-like layer on upper leaf surface"
+}
