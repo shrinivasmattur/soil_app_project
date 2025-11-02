@@ -1,39 +1,24 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
 
 def get_farmer_info():
     info = {
         "Ramphala": {
-            "Market Price (India)": "₹9917 per Quintal",
-            "Agricultural Yield": "N/A",
-            "Export Status": "Niche market, less data on exports.",
-            "Commercial Value": """
-* **Pharmaceutical:** Valued for medicinal properties and high antioxidant content.
-* **Nutraceutical:** Used in health-focused food products.
-* **Environmental:** Waste (leaves/bark) is repurposed as a bio-adsorbent to remove industrial dyes.
-"""
+            "Growth in India": "Cultivated to a limited extent in West Bengal, Gujarat, Maharashtra, Karnataka, Tamil Nadu, and Kerala.",
+            "Commercial & Industrial Use": "Pulp is processed into ice creams and beverages.",
+            "Pharmaceutical & Other Use": "Leaves possess insecticidal properties. Traditionally used to treat ulcers, diarrhea, and dysentery."
         },
         "Lakshmanphala": {
-            "Market Price (India)": "Market in transformation, driven by health awareness. Specific price not listed.",
-            "Agricultural Yield": "N/A",
-            "Export Status": "Growing awareness is increasing its market presence.",
-            "Commercial Value": """
-* **Pharmaceutical:** Valued for immune-boosting and potential anti-cancer properties.
-* **Nutraceutical:** High demand for use in health and wellness products.
-* **Beverage Industry:** Popular for its distinct aromatic qualities in juices and teas.
-"""
+            "Growth in India": "Cultivated on a small scale in the southern states, including Tamil Nadu, Kerala, Karnataka, Andhra Pradesh, and Maharashtra.",
+            "Commercial & Industrial Use": "Fruit is highly valued for processing into beverages, ice creams, and jellies.",
+            "Pharmaceutical & Other Use": "Contains bioactive compounds (acetogenins) which are of significant interest for potential anticancer drug development."
         },
         "Wood Apple": {
-            "Market Price (India)": "Historically ~Rs 3 per piece (raw, local markets).",
-            "Agricultural Yield": "40.50 to 70.00 kg per plant",
-            "Export Status": "Internationally traded. China, South Korea, and USA are top exporters.",
-            "Commercial Value": """
-* **Food Processing:** Extensively used for value-added products like jams, jellies, beverages, and pickles.
-* **Pharmaceutical:** Bioactive compounds used in anti-cancer and anti-diabetic formulations.
-* **Cosmetics:** Extracts used for antioxidant properties to detoxify skin and strengthen hair.
-* **Waste Valorization:** Shells are used as a highly effective bio-adsorbent for industrial dyes and as a reinforcing filler in composite materials.
-"""
+            "Growth in India": "Grows wild and is cultivated throughout India, particularly in Uttar Pradesh, Bihar, West Bengal, Maharashtra, and the dry tracts of Southern India.",
+            "Commercial & Industrial Use": "Pulp is widely processed into beverages (sherbet), jams, jellies, and toffees. Gum from the bark is used as a substitute for gum arabic. The hard shell can be used for charcoal.",
+            "Pharmaceutical & Other Use": "Unripe fruit is famously used in traditional medicine (Ayurveda) to treat diarrhea and dysentery. Possesses hepatoprotective (liver-protecting), antimicrobial, and antiviral properties."
         }
     }
     return info
@@ -41,91 +26,113 @@ def get_farmer_info():
 def get_consumer_info():
     info = {
         "Ramphala": {
-            "Primary Consumption": "Primarily consumed fresh.",
-            "Target Demographic": "Educated consumers, aged 31-45, who prioritize health, taste, and appearance.",
-            "Health & Daily Life": """
-* **Health:** High in antioxidants and valued for medicinal properties.
-* **Driver:** Demand is driven by its unique flavor, vibrant color, and nutritional profile.
-"""
+            "Health Benefits": """
+            * Traditionally used to treat diarrhea, dysentery, and ulcers.
+            * Possesses significant antioxidant, anti-inflammatory, and antimicrobial properties.
+            """
         },
         "Lakshmanphala": {
-            "Primary Consumption": "Consumed fresh and as a beverage (e.g., soursop tea).",
-            "Target Demographic": "Educated consumers, aged 31-45. Demand is growing rapidly due to health awareness.",
-            "Health & Daily Life": """
-* **Health:** Known for immune-boosting and other health benefits.
-* **Driver:** Strong awareness of its medicinal properties and unique aromatic quality.
-"""
+            "Health Benefits": """
+            * Rich in Vitamin C, which helps boost immunity.
+            * High fiber content aids in digestion and maintains gastrointestinal health.
+            * Known for anti-inflammatory and antioxidant properties that combat cellular damage.
+            * Widely studied for its acetogenin compounds and their potential anticancer effects.
+            """
         },
         "Wood Apple": {
-            "Primary Consumption": "Primarily consumed in processed forms (beverages, jams, pickles).",
-            "Target Demographic": "Wide acceptability for its traditional use and in value-added products.",
-            "Health & Daily Life": """
-* **Health:** Known as a "miracle fruit" with anti-diabetic, anti-inflammatory, and antimicrobial properties.
-* **Driver:** High consumer acceptability of processed products; beverages have a shelf-life of up to 50 days.
-"""
+            "Health Benefits": """
+            * Highly valued in traditional medicine; ripe fruit acts as a laxative, while unripe fruit helps treat diarrhea and dysentery.
+            * Manages digestive disorders and is known to have liver-protecting properties.
+            * Exhibits antimicrobial and antiviral activities.
+            """
         }
     }
     return info
 
-st.title("📊 Marketing & Growth Insights")
-st.markdown("Visual data to promote the cultivation and consumption of indigenous fruits, based on market research.")
+def get_nutritional_data():
+    data = {
+        'Fruit': ['Ramphala', 'Lakshmanphala', 'Wood Apple'],
+        'Energy (kcal)': [101, 66, 137],
+        'Protein (g)': [1.7, 1.0, 1.8],
+        'Fat (g)': [0.6, 0.67, 0.3],
+        'Carbohydrate (g)': [25.2, 16.84, 31.8],
+        'Fiber (g)': [2.4, 3.3, 2.9],
+        'Calcium (mg)': [30, 14, 85],
+        'Phosphorus (mg)': [21, 27, 50],
+        'Iron (mg)': [0.71, 0.6, 0.7],
+        'Vitamin C (mg)': [19.2, 20.6, 8.0]
+    }
+    return pd.DataFrame(data).set_index('Fruit')
 
-tab_farmer, tab_consumer = st.tabs(["🧑‍🌾 Farmer Insights (Promotion)", "👩‍🍳 Consumer Insights (Promotion)"])
+st.title("📊 Marketing & Growth Insights")
+st.markdown("Data sourced from 'Indian Fruit Research: Uses and Potential.pdf'")
+
+farmer_data = get_farmer_info()
+consumer_data = get_consumer_info()
+nutri_df = get_nutritional_data()
+
+tab_farmer, tab_consumer = st.tabs(["Farmer Insights", "Consumer Insights"])
 
 with tab_farmer:
-    st.header("Promoting Growth: The Farmer's Perspective")
-    farmer_data = get_farmer_info()
-    farmer_df = pd.DataFrame(farmer_data).T
+    st.header("🧑‍🌾 Insights for Cultivators")
     
-    st.markdown("These crops offer diverse opportunities in both local and international markets, from food processing to pharmaceuticals.")
-    
-    st.subheader("Key Agricultural & Market Statistics")
-    st.table(farmer_df[['Market Price (India)', 'Agricultural Yield', 'Export Status']])
+    st.subheader("Cultivation Areas in India")
+    growth_data = {fruit: [info["Growth in India"]] for fruit, info in farmer_data.items()}
+    growth_df = pd.DataFrame(growth_data, index=["States"]).T
+    st.table(growth_df)
 
-    st.subheader("Key Commercial & Industrial Uses")
-    for fruit in farmer_df.index:
+    st.subheader("Commercial, Pharmaceutical & Other Uses")
+    for fruit, info in farmer_data.items():
         st.markdown(f"**{fruit}**")
-        st.markdown(farmer_df.loc[fruit, "Commercial Value"])
-    
-    st.markdown("---")
-    st.subheader("Data-Driven Charts (from PDF)")
-    st.markdown("Note: The charts below are based on the specific quantitative data available in the research document.")
-
-    st.markdown("#### Wood Apple: International Export Leaders (by Shipments)")
-    export_data = {
-        'China': 2098,
-        'South Korea': 956,
-        'USA': 65
-    }
-    fig1, ax1 = plt.subplots()
-    ax1.bar(export_data.keys(), export_data.values(), color=['#FF5733', '#C70039', '#900C3F'])
-    ax1.set_ylabel('Number of Shipments')
-    ax1.set_title('Top Wood Apple Exporters (from PDF data)')
-    st.pyplot(fig1)
-
-    st.markdown("#### Wood Apple: Agricultural Yield per Plant (India)")
-    yield_data = {
-        'Minimum Yield': 40.50,
-        'Maximum Yield': 70.00
-    }
-    fig2, ax2 = plt.subplots()
-    ax2.bar(yield_data.keys(), yield_data.values(), color=['#4CAF50', '#8BC34A'])
-    ax2.set_ylabel('Yield (kg per plant)')
-    ax2.set_title('Wood Apple Yield Range (from PDF data)')
-    st.pyplot(fig2)
-
+        st.markdown(f"**Commercial & Industrial:** {info['Commercial & Industrial Use']}")
+        st.markdown(f"**Pharmaceutical & Other:** {info['Pharmaceutical & Other Use']}")
+        st.markdown("---")
 
 with tab_consumer:
-    st.header("Promoting Consumption: The Consumer's Perspective")
-    consumer_data = get_consumer_info()
-    consumer_df = pd.DataFrame(consumer_data).T
+    st.header("👩‍🍳 Insights for Consumers")
     
-    st.markdown("These fruits are gaining popularity among health-conscious consumers and are available in both fresh and processed forms.")
-    
-    st.subheader("Health Benefits & Consumption Patterns")
-    st.table(consumer_df[['Primary Consumption', 'Target Demographic']])
-
-    st.subheader("Key Promotional Points for Consumers")
-    for fruit in consumer_df.index:
+    st.subheader("Health Benefits")
+    for fruit, info in consumer_data.items():
         st.markdown(f"**{fruit}**")
-        st.markdown(consumer_df.loc[fruit, "Health & Daily Life"])
+        st.markdown(info['Health Benefits'])
+        st.markdown("---")
+
+    st.header("📈 Nutritional Comparison (per 100g)")
+    st.markdown("Data from Tables 1, 2, and 3 in the research PDF.")
+
+    st.subheader("Macronutrients & Energy")
+    macro_data = nutri_df[['Energy (kcal)', 'Protein (g)', 'Fat (g)', 'Carbohydrate (g)', 'Fiber (g)']]
+    
+    fig1, ax1 = plt.subplots(figsize=(10, 6))
+    macro_data.plot(kind='bar', ax=ax1, rot=0)
+    ax1.set_title("Macronutrient & Energy Comparison (per 100g)")
+    ax1.set_ylabel("Value")
+    ax1.set_xlabel("Fruit")
+    ax1.legend(title="Nutrient", bbox_to_anchor=(1.05, 1), loc='upper left')
+    ax1.grid(axis='y', linestyle='--', alpha=0.7)
+    st.pyplot(fig1, bbox_inches='tight')
+
+    st.subheader("Key Mineral Comparison")
+    mineral_data = nutri_df[['Calcium (mg)', 'Phosphorus (mg)', 'Iron (mg)']]
+    
+    fig2, ax2 = plt.subplots(figsize=(10, 6))
+    mineral_data.plot(kind='bar', ax=ax2, rot=0)
+    ax2.set_title("Key Mineral Comparison (per 100g)")
+    ax2.set_ylabel("Value (mg)")
+    ax2.set_xlabel("Fruit")
+    ax2.legend(title="Mineral", bbox_to_anchor=(1.05, 1), loc='upper left')
+    ax2.grid(axis='y', linestyle='--', alpha=0.7)
+    st.pyplot(fig2, bbox_inches='tight')
+
+    st.subheader("Vitamin C Comparison")
+    vit_c_data = nutri_df[['Vitamin C (mg)']]
+    
+    fig3, ax3 = plt.subplots(figsize=(8, 5))
+    vit_c_data.plot(kind='bar', ax=ax3, color='orange', legend=False, rot=0)
+    ax3.set_title("Vitamin C Comparison (per 100g)")
+    ax3.set_ylabel("Value (mg)")
+    ax3.set_xlabel("Fruit")
+    ax3.grid(axis='y', linestyle='--', alpha=0.7)
+    st.pyplot(fig3, bbox_inches='tight')
+
+
