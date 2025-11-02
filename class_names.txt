@@ -1,0 +1,9 @@
+Anthracnose , Alternaria leaf blight
+Bacterial_spot
+Early Blight
+Healthy
+Late_Blight
+Leaf_Crinkle
+Powdery_Mildew
+Sooty_Mold
+Yellow_Mosaic
