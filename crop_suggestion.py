@@ -1,49 +1,84 @@
-# 2_crop_suggestion_app.py
 import streamlit as st
-from PIL import Image
 import pandas as pd
 import numpy as np
+import joblib
+from PIL import Image
+import os
 
-def predict_soil_from_image(image):
-    soil_types = ["Alluvial Soil", "Black Soil", "Red Soil", "Laterite Soil"]
-    return np.random.choice(soil_types)
+# --- List of your custom fruits and their image files ---
+IMAGE_MAP = {
+    "Ramphal": "Ram phala.jpg",
+    "Lakshmanphal": "Lakshman phala.jpg",
+    "Wood Apple": "wood apple.jpg"
+}
 
-def suggest_crop(soil_type):
-    crop_suggestions = {
-        "Alluvial Soil": ["Ramphala", "Lakshmanaphala"],
-        "Black Soil": ["Wood Apple"],
-        "Red Soil": ["Ramphala", "Wood Apple"],
-        "Laterite Soil": ["Lakshmanaphala"]
-    }
-    return crop_suggestions.get(soil_type, ["No specific suggestion for this soil type."])
+# --- Load trained model and dataset ---
+@st.cache_resource
+def load_model():
+    return joblib.load("crop_recommendation_model.joblib")   # adjust filename if needed
 
-st.title("🌱 Crop Suggestion for Indigenous Fruits")
-st.header("Input Soil Information")
+@st.cache_data
+def load_data():
+    return pd.read_csv("Crop_recommendation.csv")
 
-input_method = st.radio("Choose input method:", ("Manual Input", "Upload Image"))
-predicted_soil = None
+model = load_model()
+df = load_data()
 
-if input_method == "Manual Input":
-    soil_type_manual = st.selectbox(
-        "Select Soil Type:",
-        ("Alluvial Soil", "Black Soil", "Red Soil", "Laterite Soil")
+st.title("🌾 Smart Crop Recommendation & Similar Crop Finder")
+
+# --- Input form ---
+st.header("Enter Environmental Parameters")
+
+N = st.number_input('Nitrogen (N)', 0, 200, 90)
+P = st.number_input('Phosphorus (P)', 0, 200, 40)
+K = st.number_input('Potassium (K)', 0, 250, 40)
+temperature = st.number_input('Temperature (°C)', -10.0, 50.0, 25.0, step=0.1)
+humidity = st.number_input('Humidity (%)', 0.0, 100.0, 70.0, step=0.1)
+ph = st.number_input('pH Value', 0.0, 14.0, 6.5, step=0.1)
+rainfall = st.number_input('Rainfall (mm)', 0.0, 1500.0, 100.0, step=0.1)
+
+# --- When button pressed ---
+if st.button("🌱 Recommend Crop"):
+    input_data = pd.DataFrame([[N, P, K, temperature, humidity, ph, rainfall]],
+                              columns=['N','P','K','temperature','humidity','ph','rainfall'])
+
+    # Predict primary crop
+    prediction = model.predict(input_data)[0]
+    st.success(f"✅ **Recommended Crop:** {prediction.capitalize()}")
+
+    # Show image if exists
+    crop_lower = prediction.lower()
+    if crop_lower in IMAGE_MAP and os.path.exists(IMAGE_MAP[crop_lower]):
+        st.image(IMAGE_MAP[crop_lower], caption=f"Recommended Crop: {prediction.capitalize()}", use_container_width=True)
+
+    # --- Find similar crops ---
+    st.subheader("🌿 Other Crops with Similar Conditions")
+    target = input_data.iloc[0]
+
+    # Compute a simple similarity score (lower = more similar)
+    df["score"] = np.sqrt(
+        (df["N"] - target["N"])**2 +
+        (df["P"] - target["P"])**2 +
+        (df["K"] - target["K"])**2 +
+        (df["temperature"] - target["temperature"])**2 +
+        (df["humidity"] - target["humidity"])**2 +
+        (df["ph"] - target["ph"])**2 +
+        (df["rainfall"] - target["rainfall"])**2
     )
-    if st.button("Get Crop Suggestion"):
-        predicted_soil = soil_type_manual
 
-elif input_method == "Upload Image":
-    uploaded_file = st.file_uploader("Choose a soil image...", type=["jpg", "jpeg", "png"])
-    if uploaded_file is not None:
-        image = Image.open(uploaded_file)
-        st.image(image, caption='Uploaded Soil Image.', use_column_width=True)
-        st.write("")
-        st.write("Classifying...")
-        
-        predicted_soil = predict_soil_from_image(image)
-        st.success(f"Predicted Soil Type: **{predicted_soil}**")
+    # Average per crop type
+    crop_scores = df.groupby("label")["score"].mean().reset_index()
+    crop_scores = crop_scores.sort_values(by="score", ascending=True)
 
-if predicted_soil:
-    st.header("Recommended Crops")
-    suggestions = suggest_crop(predicted_soil)
-    for crop in suggestions:
-        st.subheader(f"-> {crop}")
+    # Convert to similarity percentage
+    crop_scores["suitability (%)"] = 100 * (1 - (crop_scores["score"] / crop_scores["score"].max()))
+
+    # Show top 5 similar crops
+    top_similar = crop_scores.head(5)
+    for _, row in top_similar.iterrows():
+        st.info(f"**{row['label'].capitalize()}** — Suitability: {row['suitability (%)']:.2f}%")
+
+        # show image if available
+        label_lower = row["label"].lower()
+        if label_lower in IMAGE_MAP and os.path.exists(IMAGE_MAP[label_lower]):
+            st.image(IMAGE_MAP[label_lower], caption=f"{row['label'].capitalize()}", use_container_width=True)
