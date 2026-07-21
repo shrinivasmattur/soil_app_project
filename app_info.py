@@ -1,5 +1,9 @@
 # app.py (Modified to fix deprecation warning)
 import streamlit as st
+import os
+
+st.write("Current directory:", os.getcwd())
+st.write("Files:", os.listdir())
 from PIL import Image # Import the Python Imaging Library
 import os
 
