@@ -37,7 +37,4 @@ Objective
 
 To build an intelligent agriculture support system that assists in crop selection and disease identification for indigenous fruit crops using machine learning and data-driven techniques.
 
-Author
 
-Suraj M S, https://github.com/surajms1415
->>>>>>> 4d915bb (Create README.md)
