@@ -1,11 +1,20 @@
 # app.py (Modified to fix deprecation warning)
+<<<<<<< HEAD
 import streamlit as st
 import os
 
 st.write("Current directory:", os.getcwd())
 st.write("Files:", os.listdir())
 from PIL import Image # Import the Python Imaging Library
+=======
+>>>>>>> f9bc2fa (Added fruit information and fixed image loading)
 import os
+
+import streamlit as st
+st.write("Current directory:", os.getcwd())
+st.write("Files:", os.listdir())
+from PIL import Image # Import the Python Imaging Library
+# import os
 
 st.title("📚 Fruit Information")
 st.markdown("Detailed information on the featured indigenous fruits.")

@@ -2,6 +2,8 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 import streamlit as st
+from PIL import Image
+import os
 import folium
 from folium.plugins import MarkerCluster
 from streamlit_folium import st_folium
@@ -25,9 +27,18 @@ karnataka_soils = {
 # ---------------------------
 # Plant Recommendations Data
 # ---------------------------
+# Helper to load local images
+def load_local_image(file_name):
+    if os.path.exists(file_name):
+        try:
+            return Image.open(file_name)
+        except Exception:
+            return None
+    return None
+
 plants = {
     "Ramphal (Annona reticulata)": {
-        "image_url": "https://upload.wikimedia.org/wikipedia/commons/7/79/Annona_reticulata_Blanco1.197-cropped.jpg",
+        "local_image": "Ram phala.jpg",
         "soil_types": ["Sandy/Light Soil", "Loamy Soil"],
         "ph_range": (5.5, 7.5),
         "moisture_range": (40, 80),
@@ -37,7 +48,7 @@ plants = {
         "description": "Prefers well-drained loamy or sandy soils with pH 5.5-7.5 and moderate moisture. Flowers Jan–Mar, fruits Apr–Jun."
     },
     "Lakshmanaphala (Annona muricata, Soursop)": {
-        "image_url": "https://upload.wikimedia.org/wikipedia/commons/4/43/Soursop%2C_Annona_muricata.jpg",
+        "local_image": "Lakshman phala.jpg",
         "soil_types": ["Sandy/Light Soil", "Loamy Soil"],
         "ph_range": (5.0, 6.5),
         "moisture_range": (50, 90),
@@ -47,7 +58,7 @@ plants = {
         "description": "Thrives in well-drained sandy or fertile soils with pH 5-6.5 and high humidity. Flowers Jan–Jun (all year possible), fruits Jun–Sep."
     },
     "Wood Apple (Limonia acidissima)": {
-        "image_url": "https://upload.wikimedia.org/wikipedia/commons/3/3b/Wood_Apple_-_Limonia_acidissima.jpg",
+        "local_image": "wood apple.jpg",
         "soil_types": ["Sandy/Light Soil", "Loamy Soil", "Clay/Black Soil"],
         "ph_range": (5.5, 6.5),
         "moisture_range": (30, 70),
@@ -348,7 +359,11 @@ st.subheader("🌿 Plants for Recommendation")
 for plant_name, plant_data in plants.items():
     col1, col2 = st.columns([1, 3])
     with col1:
-        st.image(plant_data["image_url"], caption=plant_name, width=100)
+        img = load_local_image(plant_data["local_image"])
+        if img:
+            st.image(img, caption=plant_name, width=100)
+        else:
+            st.info(f"📷 {plant_name} image not available")
     with col2:
         st.write(f"**{plant_name}**")
         st.write(f"{plant_data['description']}")
@@ -422,12 +437,16 @@ if uploaded_soil_file is not None and map_data and map_data.get("last_clicked"):
             st.warning(f"**No Recommended Plant**: {top_description}")
         else:
             st.success(f"**Top Recommended Plant: {top_plant}** (Score: {top_score:.2f}/4.0)\n\n{top_description}")
-            st.image(plants[top_plant]["image_url"], width=200)
+            top_img = load_local_image(plants[top_plant]["local_image"])
+            if top_img:
+                st.image(top_img, width=200)
             if len(recommendations) > 1:
                 st.write("**Other Suitable Plants**:")
                 for plant_name, desc, score in recommendations[1:]:
                     st.info(f"✅ **{plant_name}** (Score: {score:.2f}/4.0) - {desc}")
-                    st.image(plants[plant_name]["image_url"], width=150)
+                    other_img = load_local_image(plants[plant_name]["local_image"])
+                    if other_img:
+                        st.image(other_img, width=150)
 
         # Show updated map with markers
         result_map = folium.Map(location=[lat, lon], zoom_start=7)
@@ -456,14 +475,14 @@ if uploaded_soil_file is not None and map_data and map_data.get("last_clicked"):
         <b>Top Recommended Plant:</b><br>
         """
         if "None" not in top_plant:
-            popup_text += f'<img src="{plants[top_plant]["image_url"]}" width="100" height="100"><br>{top_plant} (Score: {top_score:.2f}/4.0)<br>'
+            popup_text += f'{top_plant} (Score: {top_score:.2f}/4.0)<br>'
             popup_text += f'Flowering: {plants[top_plant]["flowering_months"][0]}–{plants[top_plant]["flowering_months"][1]}<br>'
             popup_text += f'Fruiting: {plants[top_plant]["fruiting_months"][0]}–{plants[top_plant]["fruiting_months"][1]}<br>'
             popup_text += f'Harvest: {plants[top_plant]["harvest_info"]}<br>'
             if len(recommendations) > 1:
                 popup_text += "<b>Other Suitable Plants:</b><br>"
                 for plant_name, _, score in recommendations[1:]:
-                    popup_text += f'<img src="{plants[plant_name]["image_url"]}" width="80" height="80"><br>{plant_name} (Score: {score:.2f}/4.0)<br>'
+                    popup_text += f'{plant_name} (Score: {score:.2f}/4.0)<br>'
         else:
             popup_text += f"{top_plant}<br>"
         folium.Marker(
@@ -477,7 +496,6 @@ if uploaded_soil_file is not None and map_data and map_data.get("last_clicked"):
             plant_position = (lat + 0.01, lon)  # Slightly offset from user location
             plant_popup = f"""
             <b>Top Recommended: {top_plant}</b><br>
-            <img src="{plants[top_plant]["image_url"]}" width="150" height="150"><br>
             Flowering: {plants[top_plant]["flowering_months"][0]}–{plants[top_plant]["flowering_months"][1]}<br>
             Fruiting: {plants[top_plant]["fruiting_months"][0]}–{plants[top_plant]["fruiting_months"][1]}<br>
             Harvest: {plants[top_plant]["harvest_info"]}
